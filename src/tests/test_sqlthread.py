@@ -35,6 +35,12 @@ class TestSqlBase(object):  # pylint: disable=E1101, too-few-public-methods, E10
         self.test_db.create_sql_function()
         self.test_db.initialize_schema()
 
+    def get_table_schema(self, table_name):
+        self.test_db.cur.execute("""PRAGMA table_info({})""".format(table_name))
+        res = self.test_db.cur.fetchall()
+        res = [[x[1], x[2]] for x in res]
+        return res
+
     def initialise_database(self, test_db_cur, file):  # pylint: disable=W0622, redefined-builtin
         """
             Initialise DB
@@ -65,6 +71,138 @@ class TestFnBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disable=pro
         self.test_db.cur.execute(item, parameters)
         query = self.test_db.cur.fetchall()
         self.assertEqual(query[0][-1], encoded_str, "test case fail for create_function")
+
+
+class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
+    """Test case for SQL initializer"""
+
+    def setUp(self):
+        """
+            Setup DB schema before start.
+            And applying default schema for initializer test.
+        """
+        self._setup_db()
+
+    def test_inbox_table_init(self):
+        """
+            Test inbox table
+        """
+        res = self.get_table_schema("inbox")
+        check = [['msgid', 'blob'],
+                 ['toaddress', 'text'],
+                 ['fromaddress', 'text'],
+                 ['subject', 'text'],
+                 ['received', 'text'],
+                 ['message', 'text'],
+                 ['folder', 'text'],
+                 ['encodingtype', 'int'],
+                 ['read', 'bool'],
+                 ['sighash', 'blob']]
+        self.assertEqual(res,check,"inbox table not valid")
+
+    def test_sent_table_init(self):
+        """
+            Test sent table
+        """
+        res = self.get_table_schema("sent")
+        check = [['msgid', 'blob'],
+                 ['toaddress', 'text'],
+                 ['toripe', 'blob'],
+                 ['fromaddress', 'text'],
+                 ['subject', 'text'],
+                 ['message', 'text'],
+                 ['ackdata', 'blob'],
+                 ['senttime', 'integer'],
+                 ['lastactiontime', 'integer'],
+                 ['sleeptill', 'integer'],
+                 ['status', 'text'],
+                 ['retrynumber', 'integer'],
+                 ['folder', 'text'],
+                 ['encodingtype', 'int'],
+                 ['ttl', 'int']]
+        self.assertEqual(res, check, "sent table not valid")
+
+    def test_subscriptions_table_init(self):
+        """
+            Test subscriptions table
+        """
+        res = self.get_table_schema("subscriptions")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "subscriptions table not valid")
+
+    def test_addressbook_table_init(self):
+        """
+            Test addressbook table
+        """
+        res = self.get_table_schema("addressbook")
+        check = [['label', 'text'],
+                 ['address', 'text']]
+        self.assertEqual(res, check, "addressbook table not valid")
+
+    def test_blacklist_table_init(self):
+        """
+            Test blacklist table
+        """
+        res = self.get_table_schema("blacklist")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "blacklist table not valid")
+
+    def test_whitelist_table_init(self):
+        """
+            Test whitelist table
+        """
+        res = self.get_table_schema("whitelist")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "whitelist table not valid")
+
+    def test_pubkeys_table_init(self):
+        """
+            Test pubkeys table
+        """
+        res = self.get_table_schema("pubkeys")
+        check = [['address', 'text'],
+                 ['addressversion', 'int'],
+                 ['transmitdata', 'blob'],
+                 ['time', 'int'],
+                 ['usedpersonally', 'text']]
+        self.assertEqual(res, check, "pubkeys table not valid")
+
+    def test_inventory_table_init(self):
+        """
+            Test inventory table
+        """
+        res = self.get_table_schema("inventory")
+        check = [['hash', 'blob'],
+                 ['objecttype', 'int'],
+                 ['streamnumber', 'int'],
+                 ['payload', 'blob'],
+                 ['expirestime', 'integer'],
+                 ['tag', 'blob']]
+        self.assertEqual(res, check, "inventory table not valid")
+
+    def test_settings_table_init(self):
+        """
+            Test settings table
+        """
+        res = self.get_table_schema("settings")
+        check = [['key', 'blob'],
+                 ['value', 'blob']]
+        self.assertEqual(res, check, "settings table not valid")
+
+    def test_objectprocessorqueue_table_init(self):
+        """
+            Test objectprocessorqueue table
+        """
+        res = self.get_table_schema("objectprocessorqueue")
+        check = [['objecttype', 'int'],
+                 ['data', 'blob']]
+        self.assertEqual(res, check, "objectprocessorqueue table not valid")
 
 
 class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disable=protected-access
@@ -104,7 +242,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 2
         """
-
         res = self.test_db.cur.execute(''' SELECT count(name) FROM sqlite_master
             WHERE type='table' AND name='inventory_backup' ''')
         self.assertNotEqual(res, 1, "Table inventory_backup not deleted in versioning 2")
@@ -115,7 +252,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
             Test with version 1
             Version 1 and 3 are same so will skip 3
         """
-
         res = self.test_db.cur.execute('''PRAGMA table_info('inventory');''')
         result = list(filter_table_column(res, "tag"))
         self.assertEqual(result, ['tag'], "Data not migrated for version 3")
@@ -125,7 +261,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 4
         """
-
         self.test_db.cur.execute("select * from pubkeys where addressversion = '1';")
         res = self.test_db.cur.fetchall()
         self.assertEqual(len(res), 1, "Table inventory not deleted in versioning 4")
@@ -135,7 +270,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 5
         """
-
         self.test_db.cur.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='knownnodes' ''')  # noqa
         res = self.test_db.cur.fetchall()
         self.assertNotEqual(res[0][0], 1, "Table knownnodes not deleted in versioning 5")
@@ -152,7 +286,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 6
         """
-
         self.test_db.cur.execute('''PRAGMA table_info('inventory');''')
         inventory = self.test_db.cur.fetchall()
         inventory = list(filter_table_column(inventory, "expirestime"))
@@ -168,7 +301,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 7
         """
-
         self.test_db.cur.execute('''SELECT * FROM pubkeys ''')
         pubkeys = self.test_db.cur.fetchall()
         self.assertEqual(pubkeys, [], "Data not migrated for version 7")
@@ -186,7 +318,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 8
         """
-
         self.test_db.cur.execute('''PRAGMA table_info('inbox');''')
         res = self.test_db.cur.fetchall()
         result = list(filter_table_column(res, "sighash"))
@@ -197,7 +328,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 9
         """
-
         self.test_db.cur.execute("SELECT count(name) FROM  sqlite_master WHERE type='table' AND name='pubkeys_backup'")  # noqa
         res = self.test_db.cur.fetchall()
         self.assertNotEqual(res[0][0], 1, "Table pubkeys_backup not deleted")
@@ -207,7 +337,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
             Test with version 10
         """
-
         label = "test"
         self.test_db.cur.execute("SELECT * FROM addressbook WHERE label='test' ")  # noqa
         res = self.test_db.cur.fetchall()
