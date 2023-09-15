@@ -235,9 +235,9 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
                 if i == 7:
                     self.test_db.cur.execute('''INSERT INTO inventory VALUES( '', 1, 1, '', 1, '') ''')
                     self.test_db.cur.execute('''INSERT INTO pubkeys VALUES( '', 1, '', 1, '') ''')
-                    self.test_db.cur.execute('''INSERT INTO sent 
+                    self.test_db.cur.execute('''INSERT INTO sent
                                         VALUES( '', '', '', '', '', '', '', 1, 'doingmsgpow', 1, 1, '', 1) ''')
-                    self.test_db.cur.execute('''INSERT INTO sent 
+                    self.test_db.cur.execute('''INSERT INTO sent
                                         VALUES( '', '', '', '', '', '', '', 1, 'badkey', 1, 1, '', 1) ''')
                     self.test_db.conn.commit()
                 elif i == 9:
@@ -282,8 +282,8 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         answer = (check_column in inventory_schema)
 
         # check deleting first20bytesofencryptedmessage column to inventory table
-        self.assertNotEqual(answer, True, "Column first20bytesofencryptedmessage in table inventory not "\
-                                           "deleted in version 3")
+        self.assertNotEqual(answer, True,
+                            "Column first20bytesofencryptedmessage in table inventory not deleted in version 3")
 
         # check deleting inventory_backup table
         self.test_db.cur.execute(''' SELECT count(name) FROM sqlite_master
@@ -336,7 +336,8 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         self.assertEqual(version, 6, "Settings version value not updated")
 
         # check deleting knownnodes table
-        self.test_db.cur.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='knownnodes' ''')
+        self.test_db.cur.execute(''' SELECT count(name) FROM sqlite_master
+        WHERE type='table' AND name='knownnodes' ''')
         res = self.test_db.cur.fetchall()[0][0]
         self.assertNotEqual(res, 1, "Table knownnodes not deleted in versioning 6")
 
