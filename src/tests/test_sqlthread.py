@@ -217,7 +217,6 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         self._setup_db()
         self.test_db.cur.execute('''INSERT INTO settings VALUES('version','2')''')
 
-
     def version(self):
         """
             Run SQL Scripts, Initialize DB with respect to versioning
