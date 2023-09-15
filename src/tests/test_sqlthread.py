@@ -36,6 +36,7 @@ class TestSqlBase(object):  # pylint: disable=E1101, too-few-public-methods, E10
         self.test_db.initialize_schema()
 
     def get_table_schema(self, table_name):
+        """Get table list of column names and value types by table name"""
         self.test_db.cur.execute("""PRAGMA table_info({})""".format(table_name))
         res = self.test_db.cur.fetchall()
         res = [[x[1], x[2]] for x in res]
@@ -98,7 +99,7 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
                  ['encodingtype', 'int'],
                  ['read', 'bool'],
                  ['sighash', 'blob']]
-        self.assertEqual(res,check,"inbox table not valid")
+        self.assertEqual(res, check, "inbox table not valid")
 
     def test_sent_table_init(self):
         """
@@ -215,6 +216,7 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         """
         self._setup_db()
         self.test_db.cur.execute('''INSERT INTO settings VALUES('version','2')''')
+
 
     def version(self):
         """
