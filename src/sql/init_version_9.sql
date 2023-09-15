@@ -72,3 +72,5 @@ CREATE TABLE `pubkeys` (
 INSERT INTO pubkeys SELECT address, addressversion, transmitdata, `time`, usedpersonally FROM pubkeys_backup;
 
 DROP TABLE pubkeys_backup;
+
+UPDATE settings SET value = 10 WHERE key = 'version';

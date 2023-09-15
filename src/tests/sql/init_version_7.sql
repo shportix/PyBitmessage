@@ -1,3 +1,13 @@
-INSERT INTO `sent` VALUES
-(1,'BM-2cWzMnxjJ7yRP3nLEWUV5LisTZyREWSxYz',1,'BM-2cWzSnwjJ7yRP3nLEWUV5LisTZyREWSzUK','Test1 subject','message test 1','ackdata',1638176409,1638176409,1638176423,'msgqueued',1,'testfolder',1,2),
-(2,'BM-2cWzMnxjJ7yRP3nLEWUV5LisTZyREWSxYz',1,'BM-2cWzSnwjJ7yRP3nLEWUV5LisTZyREWSzUK','Test2 subject','message test 2','ackdata',1638176423,1638176423,1638176423,'msgqueued',1,'testfolder',1,2);
+--
+-- The format of data stored in the pubkeys table has changed. Let's
+-- clear it, and the pubkeys from inventory, so that they'll
+-- be re-downloaded.
+--
+
+DELETE FROM inventory WHERE objecttype = 1;
+
+DELETE FROM pubkeys;
+
+UPDATE sent SET status='msgqueued' WHERE status='doingmsgpow' or status='badkey';
+
+UPDATE settings SET value = 8 WHERE key = 'version';
