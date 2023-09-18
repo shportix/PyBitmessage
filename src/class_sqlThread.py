@@ -106,12 +106,6 @@ class BitmessageDB(object):
             Initialize upgrade level
         """
 
-        while self.sql_schema_version < self.max_level:
-            self._upgrade_one_level_sql_statement(self.sql_schema_version)
-
-    def upgrade_schema_if_old_version(self):
-        """ check settings table exists """
-
         query = "SELECT name FROM sqlite_master WHERE type='table' AND name='settings'"
         parameters = ()
         self.cur.execute(query, parameters)
@@ -128,9 +122,15 @@ class BitmessageDB(object):
 
             # initiate sql file
             self.initialize_sql("upg_sc_if_old_ver_1")
+            self.conn.commit()
         # After code refactoring, the possible status values for sent messages
         # have changed.
         self.initialize_sql("upg_sc_if_old_ver_2")
+        self.conn.commit()
+
+        while self.sql_schema_version < self.max_level:
+            self._upgrade_one_level_sql_statement(self.sql_schema_version)
+            self.conn.commit()
 
     def check_columns_can_store_binary_null(self):
         """
@@ -402,8 +402,6 @@ class sqlThread(threading.Thread):
         self.upgrade_config_setting_version()
 
         helper_startup.updateConfig()
-
-        self.db.upgrade_schema_if_old_version()
 
         self.db.upgrade_to_latest()
 
