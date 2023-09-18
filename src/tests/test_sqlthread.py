@@ -408,7 +408,7 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         answ = check in sent_schema
         self.assertEqual(answ, True, "Column senttime not added to sent table")
 
-        check = ['sleeptill', 'int']
+        check = ['sleeptill', 'integer']
         answ = check in sent_schema
         self.assertEqual(answ, True, "Column sleeptill not added to sent table")
 
@@ -451,10 +451,98 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
         res = self.test_db.cur.fetchall()
         self.assertEqual(res, [('', '')], "Migration addressbook table data failed")
 
-    def test_bm_db_version_type(self):
+    def test_upgrade_to_latest(self):
         """
-            Test version type
+            Test upgrade_to_latest func
         """
-        self.test_db.cur.execute('''INSERT INTO settings VALUES('version','test_string')''')  # noqa
-        res = self.test_db.sql_schema_version
-        self.assertEqual(type(res), int)
+        self.test_db.upgrade_to_latest()
+        # check inbox table
+        res = self.get_table_schema("inbox")
+        check = [['msgid', 'blob'],
+                 ['toaddress', 'text'],
+                 ['fromaddress', 'text'],
+                 ['subject', 'text'],
+                 ['received', 'text'],
+                 ['message', 'text'],
+                 ['folder', 'text'],
+                 ['encodingtype', 'int'],
+                 ['read', 'bool'],
+                 ['sighash', 'blob']]
+        self.assertEqual(res, check, "inbox table not valid")
+
+        # check sent table
+        res = self.get_table_schema("sent")
+        check = [['msgid', 'blob'],
+                 ['toaddress', 'text'],
+                 ['toripe', 'blob'],
+                 ['fromaddress', 'text'],
+                 ['subject', 'text'],
+                 ['message', 'text'],
+                 ['ackdata', 'blob'],
+                 ['senttime', 'integer'],
+                 ['lastactiontime', 'integer'],
+                 ['sleeptill', 'integer'],
+                 ['status', 'text'],
+                 ['retrynumber', 'integer'],
+                 ['folder', 'text'],
+                 ['encodingtype', 'int'],
+                 ['ttl', 'int']]
+        self.assertEqual(res, check, "sent table not valid")
+
+        # check subscriptions table
+        res = self.get_table_schema("subscriptions")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "subscriptions table not valid")
+
+        # check addressbook table
+        res = self.get_table_schema("addressbook")
+        check = [['label', 'text'],
+                 ['address', 'text']]
+        self.assertEqual(res, check, "addressbook table not valid")
+
+        # check blacklist table
+        res = self.get_table_schema("blacklist")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "blacklist table not valid")
+
+        # check whitelist table
+        res = self.get_table_schema("whitelist")
+        check = [['label', 'text'],
+                 ['address', 'text'],
+                 ['enabled', 'bool']]
+        self.assertEqual(res, check, "whitelist table not valid")
+
+        # check pubkeys table
+        res = self.get_table_schema("pubkeys")
+        check = [['address', 'text'],
+                 ['addressversion', 'int'],
+                 ['transmitdata', 'blob'],
+                 ['time', 'int'],
+                 ['usedpersonally', 'text']]
+        self.assertEqual(res, check, "pubkeys table not valid")
+
+        # check inventory table
+        res = self.get_table_schema("inventory")
+        check = [['hash', 'blob'],
+                 ['objecttype', 'int'],
+                 ['streamnumber', 'int'],
+                 ['payload', 'blob'],
+                 ['expirestime', 'integer'],
+                 ['tag', 'blob']]
+        self.assertEqual(res, check, "inventory table not valid")
+
+        # check settings table
+        res = self.get_table_schema("settings")
+        check = [['key', 'blob'],
+                 ['value', 'blob']]
+        self.assertEqual(res, check, "settings table not valid")
+
+        # check objectprocessorqueue table
+        res = self.get_table_schema("objectprocessorqueue")
+        check = [['objecttype', 'int'],
+                 ['data', 'blob']]
+        self.assertEqual(res, check, "objectprocessorqueue table not valid")

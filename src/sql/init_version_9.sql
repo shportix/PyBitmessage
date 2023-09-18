@@ -27,7 +27,7 @@ CREATE TABLE `sent` (
     `ackdata` blob,
     `senttime` integer,
     `lastactiontime` integer,
-    `sleeptill` int,
+    `sleeptill` integer,
     `status` text,
     `retrynumber` integer,
     `folder` text,

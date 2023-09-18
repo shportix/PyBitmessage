@@ -101,16 +101,6 @@ class BitmessageDB(object):
         """
         return self.__get_current_settings_version()
 
-    @sql_schema_version.setter
-    def sql_schema_version(self, setter):
-        """
-            Update version with one level
-        """
-
-        if setter:
-            query = "UPDATE settings SET value=CAST(value AS INT) + 1 WHERE key = 'version'"
-            self.cur.execute(query)
-
     def upgrade_to_latest(self):
         """
             Initialize upgrade level
@@ -118,7 +108,6 @@ class BitmessageDB(object):
 
         while self.sql_schema_version < self.max_level:
             self._upgrade_one_level_sql_statement(self.sql_schema_version)
-            self.sql_schema_version = True  # bump sql_schema_version by one
 
     def upgrade_schema_if_old_version(self):
         """ check settings table exists """
