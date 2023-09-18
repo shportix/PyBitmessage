@@ -10,16 +10,6 @@ from pybitmessage.class_sqlThread import TestDB  # noqa:E402
 from pybitmessage.addresses import encodeAddress  # noqa:E402
 
 
-def filter_table_column(schema, column):
-    """
-        Filter column from schema
-    """
-    for x in schema:
-        for y in x:
-            if y == column:
-                yield y
-
-
 class TestSqlBase(object):  # pylint: disable=E1101, too-few-public-methods, E1004, W0232
     """ Base for test case """
 
@@ -42,12 +32,12 @@ class TestSqlBase(object):  # pylint: disable=E1101, too-few-public-methods, E10
         res = [[x[1], x[2]] for x in res]
         return res
 
-    def initialise_database(self, test_db_cur, file):  # pylint: disable=W0622, redefined-builtin
+    def execute_test_script(self, test_db_cur, file_name):  # pylint: disable=W0622, redefined-builtin
         """
-            Initialise DB
+            Executing sql script from file
         """
 
-        with open(os.path.join(self.root_path, "tests/sql/{}.sql".format(file)), 'r') as sql_as_string:
+        with open(os.path.join(self.root_path, "tests/sql/{}.sql".format(file_name)), 'r') as sql_as_string:
             sql_as_string = sql_as_string.read()
 
         test_db_cur.cur.executescript(sql_as_string)
@@ -232,22 +222,8 @@ class TestUpgradeBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disabl
             func_name = func.__name__
             version = func_name.rsplit('_', 1)[-1]
             for i in range(1, int(version) + 1):
-                if i == 7:
-                    self.test_db.cur.execute('''INSERT INTO inventory VALUES( '', 1, 1, '', 1, '') ''')
-                    self.test_db.cur.execute('''INSERT INTO pubkeys VALUES( '', 1, '', 1, '') ''')
-                    self.test_db.cur.execute('''INSERT INTO sent
-                                        VALUES( '', '', '', '', '', '', '', 1, 'doingmsgpow', 1, 1, '', 1) ''')
-                    self.test_db.cur.execute('''INSERT INTO sent
-                                        VALUES( '', '', '', '', '', '', '', 1, 'badkey', 1, 1, '', 1) ''')
-                    self.test_db.conn.commit()
-                elif i == 9:
-                    bytes_value = b'\x00\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01'
-                    self.test_db.cur.execute('''INSERT INTO pubkeys VALUES( ?, ?, ?, ?, ?) ''',
-                                             (bytes_value, 3, '', 1, ''))
-                    self.test_db.conn.commit()
-                elif i == 10:
-                    self.test_db.cur.execute('''INSERT INTO addressbook VALUES ('', '')''')
-                    self.test_db.cur.execute('''INSERT INTO addressbook VALUES ('', '')''')
+                if i == 7 or i == 9 or i == 10:
+                    self.execute_test_script(self.test_db, 'insert_test_values_version_{}'.format(i))
                     self.test_db.conn.commit()
                 self.test_db._upgrade_one_level_sql_statement(i)   # pylint: disable= W0212, protected-access
             return func(*args)  # <-- use (self, ...)
