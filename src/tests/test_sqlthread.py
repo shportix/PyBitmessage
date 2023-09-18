@@ -74,10 +74,11 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
         """
         self._setup_db()
 
-    def test_inbox_table_init(self):
+    def test_initializer(self):
         """
-            Test inbox table
+            Test db initialization
         """
+        # check inbox table
         res = self.get_table_schema("inbox")
         check = [['msgid', 'blob'],
                  ['toaddress', 'text'],
@@ -91,10 +92,7 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
                  ['sighash', 'blob']]
         self.assertEqual(res, check, "inbox table not valid")
 
-    def test_sent_table_init(self):
-        """
-            Test sent table
-        """
+        # check sent table
         res = self.get_table_schema("sent")
         check = [['msgid', 'blob'],
                  ['toaddress', 'text'],
@@ -113,49 +111,34 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
                  ['ttl', 'int']]
         self.assertEqual(res, check, "sent table not valid")
 
-    def test_subscriptions_table_init(self):
-        """
-            Test subscriptions table
-        """
+        # check subscriptions table
         res = self.get_table_schema("subscriptions")
         check = [['label', 'text'],
                  ['address', 'text'],
                  ['enabled', 'bool']]
         self.assertEqual(res, check, "subscriptions table not valid")
 
-    def test_addressbook_table_init(self):
-        """
-            Test addressbook table
-        """
+        # check addressbook table
         res = self.get_table_schema("addressbook")
         check = [['label', 'text'],
                  ['address', 'text']]
         self.assertEqual(res, check, "addressbook table not valid")
 
-    def test_blacklist_table_init(self):
-        """
-            Test blacklist table
-        """
+        # check blacklist table
         res = self.get_table_schema("blacklist")
         check = [['label', 'text'],
                  ['address', 'text'],
                  ['enabled', 'bool']]
         self.assertEqual(res, check, "blacklist table not valid")
 
-    def test_whitelist_table_init(self):
-        """
-            Test whitelist table
-        """
+        # check whitelist table
         res = self.get_table_schema("whitelist")
         check = [['label', 'text'],
                  ['address', 'text'],
                  ['enabled', 'bool']]
         self.assertEqual(res, check, "whitelist table not valid")
 
-    def test_pubkeys_table_init(self):
-        """
-            Test pubkeys table
-        """
+        # check pubkeys table
         res = self.get_table_schema("pubkeys")
         check = [['address', 'text'],
                  ['addressversion', 'int'],
@@ -164,10 +147,7 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
                  ['usedpersonally', 'text']]
         self.assertEqual(res, check, "pubkeys table not valid")
 
-    def test_inventory_table_init(self):
-        """
-            Test inventory table
-        """
+        # check inventory table
         res = self.get_table_schema("inventory")
         check = [['hash', 'blob'],
                  ['objecttype', 'int'],
@@ -177,19 +157,13 @@ class TestInitializerBitmessageDB(TestSqlBase, unittest.TestCase):
                  ['tag', 'blob']]
         self.assertEqual(res, check, "inventory table not valid")
 
-    def test_settings_table_init(self):
-        """
-            Test settings table
-        """
+        # check settings table
         res = self.get_table_schema("settings")
         check = [['key', 'blob'],
                  ['value', 'blob']]
         self.assertEqual(res, check, "settings table not valid")
 
-    def test_objectprocessorqueue_table_init(self):
-        """
-            Test objectprocessorqueue table
-        """
+        # check objectprocessorqueue table
         res = self.get_table_schema("objectprocessorqueue")
         check = [['objecttype', 'int'],
                  ['data', 'blob']]
