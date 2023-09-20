@@ -29,7 +29,7 @@ class TestSqlBase(object):  # pylint: disable=E1101, too-few-public-methods, E10
         """Get table list of column names and value types by table name"""
         self.test_db.cur.execute("""PRAGMA table_info({})""".format(table_name))
         res = self.test_db.cur.fetchall()
-        res = [[x[1], x[2]] for x in res]
+        res = [[x[1], x[2].lower()] for x in res]
         return res
 
     def execute_test_script(self, test_db_cur, file_name):  # pylint: disable=W0622, redefined-builtin
