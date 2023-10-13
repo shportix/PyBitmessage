@@ -47,9 +47,7 @@ class TestFnBitmessageDB(TestSqlBase, unittest.TestCase):  # pylint: disable=pro
     """ Test case for Sql function"""
 
     def setUp(self):
-        """
-            setup for test case
-        """
+        """setup for test case"""
         self._setup_db()
 
     def test_create_function(self):
