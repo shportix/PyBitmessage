@@ -172,6 +172,7 @@ class Main(object):
                 defaults.networkDefaultPayloadLengthExtraBytes / 100)
 
         # Start the SQL thread
+        print("SQL_start")
         sqlLookup = sqlThread()
         # DON'T close the main program even if there are threads left.
         # The closeEvent should command this thread to exit gracefully.
