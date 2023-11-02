@@ -184,6 +184,7 @@ class Main(object):
 
         if state.enableObjProc:  # Not needed if objproc is disabled
             shared.reloadMyAddressHashes()
+            logging.info("Testing logger")
             shared.reloadBroadcastSendersForWhichImWatching()
 
             # Start the address generation thread
