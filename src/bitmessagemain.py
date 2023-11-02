@@ -11,6 +11,7 @@ The PyBitmessage startup script
 # yet contain logic to expand into further streams.
 import os
 import sys
+import logging
 
 try:
     import pathmagic
@@ -172,7 +173,7 @@ class Main(object):
                 defaults.networkDefaultPayloadLengthExtraBytes / 100)
 
         # Start the SQL thread
-        print("SQL_start")
+        logging.info("SQL started")
         sqlLookup = sqlThread()
         # DON'T close the main program even if there are threads left.
         # The closeEvent should command this thread to exit gracefully.
