@@ -28,7 +28,7 @@ sqlReturnQueue = queue.Queue()
 sql_lock = threading.Lock()
 """ lock to prevent queueing a new request until the previous response
     is available """
-sql_available = True
+sql_available = False
 """set to True by `.threads.sqlThread` immediately upon start"""
 sql_ready = threading.Event()
 """set by `.threads.sqlThread` when ready for processing (after

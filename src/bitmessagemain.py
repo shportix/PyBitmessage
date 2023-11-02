@@ -22,6 +22,7 @@ app_dir = pathmagic.setup()
 import depends
 depends.check_dependencies()
 
+import helper_sql
 import getopt
 import multiprocessing
 # Used to capture a Ctrl-C keypress so that Bitmessage can shutdown gracefully.
@@ -173,18 +174,17 @@ class Main(object):
                 defaults.networkDefaultPayloadLengthExtraBytes / 100)
 
         # Start the SQL thread
-        logging.info("SQL started")
         sqlLookup = sqlThread()
         # DON'T close the main program even if there are threads left.
         # The closeEvent should command this thread to exit gracefully.
         sqlLookup.daemon = False
         sqlLookup.start()
+        helper_sql.sql_available = True
 
         Inventory()  # init
 
         if state.enableObjProc:  # Not needed if objproc is disabled
             shared.reloadMyAddressHashes()
-            logging.info("Testing logger")
             shared.reloadBroadcastSendersForWhichImWatching()
 
             # Start the address generation thread
