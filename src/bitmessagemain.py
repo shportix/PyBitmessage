@@ -183,11 +183,12 @@ class Main(object):
         sqlLookup.daemon = False
         sqlLookup.start()
 
-        wait_until_sql_available()
+
 
         Inventory()  # init
 
         if state.enableObjProc:  # Not needed if objproc is disabled
+            wait_until_sql_available()
             shared.reloadMyAddressHashes()
             shared.reloadBroadcastSendersForWhichImWatching()
 
