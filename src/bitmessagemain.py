@@ -179,7 +179,9 @@ class Main(object):
         # The closeEvent should command this thread to exit gracefully.
         sqlLookup.daemon = False
         sqlLookup.start()
-        helper_sql.sql_available = True
+        while not helper_sql.sql_available:
+            pass
+
 
         Inventory()  # init
 
