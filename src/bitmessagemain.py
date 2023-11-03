@@ -11,7 +11,6 @@ The PyBitmessage startup script
 # yet contain logic to expand into further streams.
 import os
 import sys
-import logging
 
 try:
     import pathmagic
@@ -50,6 +49,10 @@ from threads import (
     set_thread_name, printLock,
     addressGenerator, objectProcessor, singleCleaner, singleWorker, sqlThread)
 
+
+def wait_until_sql_available():
+    while not helper_sql.sql_available:
+        time.sleep(0.25)
 
 def signal_handler(signum, frame):
     """Single handler for any signal sent to pybitmessage"""
@@ -179,9 +182,8 @@ class Main(object):
         # The closeEvent should command this thread to exit gracefully.
         sqlLookup.daemon = False
         sqlLookup.start()
-        while not helper_sql.sql_available:
-            pass
 
+        wait_until_sql_available()
 
         Inventory()  # init
 
